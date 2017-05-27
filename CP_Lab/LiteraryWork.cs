@@ -1,26 +1,29 @@
 ﻿namespace CP_Lab
 {
-    public abstract class LiteraryWork
+    public class LiteraryWork : IProduct
     {
-        public LiteraryWork(string content = "", string name = "", string author = "")
+        public long SymbolCount { get; set; };
+        public string Author { get; set; } = "";
+        public string Content { get; set; } = "";
+        public string Name { get; set; } = "";
+        public int Price { get; set; }
+
+        public LiteraryWork()
         {
-            Author = author;
-            Content = content;
-            Name = name;
+            
         }
 
-        public long SymbolCount { get; set; }
-
-        public string Author { get; set; }
-
-        public string Name { get; set; }
-
-        public string Content { get; set; };
+        public LiteraryWork(string name = "", int price = 0, string content = "") 
+        {
+            Name = name;
+            Content = content;
+            Price = price;
+        }
 
         public override string ToString()
         {
             return
-                $"name :: {Name}\t author :: {Author}\t content :: {(Content.Length > 25 ? Content.Substring(0, 25) + "...." : Content)}";
+                $"author = {Author}\t content = {(Content.Length > 25 ? Content.Substring(0, 25) + "...." : Content)}";
         }
     }
 }

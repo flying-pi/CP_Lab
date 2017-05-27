@@ -1,59 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CP_Lab;
-
-namespace class_diagram_lab
+﻿namespace CP_Lab
 {
     public class Novel : LiteraryWork
-    {
+    {     
+        public EGenre Ganre { get; set; } = EGenre.EUnknown;
+        public string Illustrator { get; set; } = "";
 
-        public Novel():this("","","")
+        public Novel()
         {
-
+            
+        }
+        
+        public Novel(string name = "", int price = 0, string content = "") :base(name,price,content)
+        {
         }
 
-        public Novel(string content, string name, string author) : this(content, name, author, EGenre.EUnknown)
+        public override string ToString()
         {
-
-        }
-
-
-        public Novel(string content, string name, string author, EGenre ganre) : base(content, name, author)
-        {
-            this.ganre = ganre;
-        }
-
-        private EGenre ganre = EGenre.EUnknown;
-        public EGenre Ganre
-        {
-            get
-            {
-                return ganre;
-            }
-            set
-            {
-                ganre = value;
-            }
-        }
-
-        private string illustrator = "";
-
-        public string Illustrator
-        {
-            get
-            {
-                return illustrator;
-            }
-            set
-            {
-                Illustrator = value;
-            }
-        }
-        override public string ToString()
-        {
-            return base.ToString() + $"\tganre = {ganre}";
+            return $"{base.ToString()}\t ganre = {Ganre} \tillustrator = {Illustrator}"; 
         }
     }
 }

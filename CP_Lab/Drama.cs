@@ -1,21 +1,16 @@
-﻿using class_diagram_lab;
-
-namespace CP_Lab
+﻿namespace CP_Lab
 {
     public class Drama : LiteraryWork
     {
+        public int SceneCount { get; set; }
+        
         public Drama()
         {
-
         }
 
-
-        public Drama(int sceneCount = 0, string content = "", string name = "", string author = "") : base(content, name, author)
+        public Drama(string name = "", int price = 0, string content = "") : base(name, price, content)
         {
-
         }
-
-        public int SceneCount { get; set; }
 
         public override string ToString()
         {
