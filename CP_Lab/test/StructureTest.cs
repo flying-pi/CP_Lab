@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace CP_Lab.test
 {
-    
     [TestFixture(typeof(ArrayBaseList<IProduct>))]
     [TestFixture(typeof(LinkedList<IProduct>))]
     public class StructureTest<T> where T : ICollection<IProduct>, new()
@@ -28,7 +27,7 @@ namespace CP_Lab.test
         {
             List<T> result = new List<T>();
             for (int i = 0; i < size; i++)
-                result.Add(new T {Name = namePrefix + i});
+                result.Add(new T {Name = namePrefix + i, Price = 123});
             return result;
         }
 
@@ -82,85 +81,85 @@ namespace CP_Lab.test
         [Test]
         public void DeleteByIndexTest()
         {
-            
             List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>(100));
             deleteTestHelper(itemList, _collection, (position, originalList, testCollect) =>
             {
                 originalList.RemoveAt(position);
                 testCollect.RemoveAt(position);
             });
-            
+
             Assert.Throws<IndexOutOfRangeException>(() => _collection.RemoveAt(100));
         }
 
         [Test]
         public void DeleteByNameTest()
         {
-            List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>(100,namePrefix:"del"));
+            List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>(100, namePrefix: "del"));
             deleteTestHelper(itemList, _collection, (position, originalList, testCollect) =>
             {
                 testCollect.RemoveByName(originalList[position].Name);
                 originalList.RemoveAt(position);
             });
-            
+
             Assert.Throws<KeyNotFoundException>(() => _collection.RemoveByName("unknowName"));
         }
 
         [Test]
         public void DeleteByItemTest()
         {
-            List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>(100,namePrefix:"del"));
+            List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>(100, namePrefix: "del"));
             deleteTestHelper(itemList, _collection, (position, originalList, testCollect) =>
             {
                 testCollect.Remove(originalList[position]);
                 originalList.RemoveAt(position);
             });
-            
+
             Assert.Throws<KeyNotFoundException>(() => _collection.RemoveByName("unknowName"));
         }
 
         [Test]
         public void SortTest()
         {
-            string[] names = {"mock","cort","bor","artica"};
+            string[] names = {"mock", "cort", "bor", "artica"};
             foreach (string name in names)
             {
-                _collection.Add(new Drama(name:name));
+                _collection.Add(new Drama(name: name));
             }
             _collection.Sort();
 
             for (int i = 0; i < names.Length; i++)
             {
-                Assert.AreEqual(names[names.Length-1-i],_collection[i].Name);
+                Assert.AreEqual(names[names.Length - 1 - i], _collection[i].Name);
             }
         }
 
         [Test]
         public void IteratorTest()
-        { 
+        {
             List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>());
             _collection.AddAll(itemList);
 
             int i = 0;
             foreach (IProduct product in _collection)
             {
-                Assert.AreSame(itemList[i++],product);
+                Assert.AreSame(itemList[i++], product);
             }
         }
+
         [Test]
         public void ReversIteratorTest()
-        { 
+        {
             List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>());
             _collection.AddAll(itemList);
 
-            int i = itemList.Count-1;
+            int i = itemList.Count - 1;
             foreach (IProduct product in _collection.GetReverseEnumerator())
             {
-                Assert.AreSame(itemList[i--],product);
+                Assert.AreSame(itemList[i--], product);
             }
         }
 
-        public static void EnumitatorTestHelper(ICollection<IProduct> collection,IEnumerable<IProduct> iterator)
+        public static void EnumitatorTestHelper(ICollection<IProduct> collection, IEnumerable<IProduct> iterator)
         {
             Assert.Throws<ChangeListInForeachException>(() =>
             {
@@ -169,7 +168,7 @@ namespace CP_Lab.test
                     collection.Remove(collection[0]);
                 }
             });
-            
+
             Assert.Throws<ChangeListInForeachException>(() =>
             {
                 foreach (var v in iterator)
@@ -177,8 +176,8 @@ namespace CP_Lab.test
                     collection.RemoveByName(collection[0].Name);
                 }
             });
-            
-            
+
+
             Assert.Throws<ChangeListInForeachException>(() =>
             {
                 foreach (var v in iterator)
@@ -186,7 +185,7 @@ namespace CP_Lab.test
                     collection.RemoveAt(0);
                 }
             });
-            
+
             Assert.Throws<ChangeListInForeachException>(() =>
             {
                 foreach (var v in iterator)
@@ -194,7 +193,7 @@ namespace CP_Lab.test
                     collection.Sort();
                 }
             });
-            
+
             Assert.Throws<ChangeListInForeachException>(() =>
             {
                 foreach (var v in iterator)
@@ -202,8 +201,8 @@ namespace CP_Lab.test
                     collection[0] = new Drama();
                 }
             });
-            
-            
+
+
             Assert.Throws<ChangeListInForeachException>(() =>
             {
                 foreach (var v in iterator)
@@ -211,12 +210,12 @@ namespace CP_Lab.test
                     collection.Add(new Drama());
                 }
             });
-            
+
             Assert.Throws<ChangeListInForeachException>(() =>
             {
                 foreach (var v in iterator)
                 {
-                    collection.AddAll( new List<IProduct>(GetItemList<Drama>()));
+                    collection.AddAll(new List<IProduct>(GetItemList<Drama>()));
                 }
             });
         }
@@ -224,14 +223,31 @@ namespace CP_Lab.test
         [Test]
         public void IteratorChangeTest()
         {
-            _collection.AddAll( new List<IProduct>(GetItemList<Drama>(10)));
+            _collection.AddAll(new List<IProduct>(GetItemList<Drama>(10)));
             EnumitatorTestHelper(_collection, _collection);
         }
+
         [Test]
         public void IteratorReverceChangeTest()
         {
-            _collection.AddAll( new List<IProduct>(GetItemList<Drama>(10)));
+            _collection.AddAll(new List<IProduct>(GetItemList<Drama>(10)));
             EnumitatorTestHelper(_collection, _collection.GetReverseEnumerator());
+        }
+
+        [Test]
+        public void SerializationTest()
+        {
+            List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>());
+            _collection.AddAll(itemList);
+            string fileName = "./out.test";
+            SerializationUtil.WriteToStream(_collection, fileName);
+            T readResult = (T) SerializationUtil.ReadFromStream(fileName);
+            Assert.AreEqual(_collection.Count, readResult.Count);
+            for (int i = 0; i < _collection.Count; i++)
+            {
+                Assert.AreEqual(_collection[i].Name, readResult[i].Name);
+                Assert.AreEqual(_collection[i].Price, readResult[i].Price);
+            }
         }
     }
 }

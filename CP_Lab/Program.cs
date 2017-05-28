@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace CP_Lab
+﻿namespace CP_Lab
 {
     internal class Program
     {
