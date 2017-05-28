@@ -87,7 +87,6 @@ namespace CP_Lab
 
         public void RemoveByName(string name)
         {
-            
             int i = 0;
             for (i = 0; i < _realSize; i++)
                 if (_items[i].Name == name)
@@ -110,10 +109,15 @@ namespace CP_Lab
 
         public void Sort()
         {
+            Sort((first, second) => first.CompareTo(second));
+        }
+
+        public void Sort(CompareDeligate<T> compare)
+        {
             string buf;
             for (int i = 0; i < _realSize - 1; i++)
             {
-                if (_items[i].CompareTo(_items[i + 1]) > 0)
+                if (compare(_items[i], _items[i + 1]) > 0)
                 {
                     buf = _items[i].Name;
                     _items[i].Name = _items[i + 1].Name;
@@ -133,8 +137,29 @@ namespace CP_Lab
                 if (validV != _version)
                     throw new ChangeListInForeachException();
                 yield return _items[i];
-
             }
+        }
+
+        public T find(FindDeligate<T> checker)
+        {
+            for (int i = 0; i < _realSize; i++)
+            {
+                if (checker(_items[i]))
+                    return _items[i];
+            }
+            return default(T);
+        }
+
+        public ICollection<T> findAll(FindDeligate<T> checker)
+        {
+            ArrayBaseList<T> result = new ArrayBaseList<T>();
+            
+            for (int i = 0; i < _realSize; i++)
+            {
+                if (checker(_items[i]))
+                    result.Add(_items[i]);
+            }
+            return result;
         }
 
         public IEnumerator<T> GetEnumerator()
@@ -145,9 +170,8 @@ namespace CP_Lab
                 if (validV != _version)
                     throw new ChangeListInForeachException();
                 yield return _items[i];
-
-           }
-         }
+            }
+        }
 
         IEnumerator IEnumerable.GetEnumerator()
         {

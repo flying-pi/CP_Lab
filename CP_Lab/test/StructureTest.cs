@@ -131,6 +131,13 @@ namespace CP_Lab.test
             {
                 Assert.AreEqual(names[names.Length - 1 - i], _collection[i].Name);
             }
+            
+            _collection.Sort((first, second) => second.CompareTo(first));
+            
+            for (int i = 0; i < names.Length; i++)
+            {
+                Assert.AreEqual(names[i], _collection[i].Name);
+            }
         }
 
         [Test]
@@ -249,5 +256,33 @@ namespace CP_Lab.test
                 Assert.AreEqual(_collection[i].Price, readResult[i].Price);
             }
         }
+
+        [Test]
+        public void FindTest()
+        {
+            List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>());
+            int targetPrice = 10;
+            Drama targetItem  = new Drama(price:targetPrice);
+            _collection.AddAll(itemList);
+            _collection.Add(targetItem);
+            Assert.AreEqual(targetItem,_collection.find(item => item.Price==targetPrice));
+            Assert.AreEqual(null,_collection.find(item => item.Price==targetPrice*2));
+        }
+        
+
+        [Test]
+        public void FindAllTest()
+        {
+            List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>());
+            int targetPrice = 10;
+            int countTargetItem = 5;
+            for(int i=0;i<countTargetItem;i++)
+                itemList.Add(new Drama(price:targetPrice));
+            _collection.AddAll(itemList);
+            Assert.AreEqual(countTargetItem,_collection.findAll(item => item.Price==targetPrice).Count);
+            Assert.AreEqual(0,_collection.findAll(item => item.Price==targetPrice*2).Count);
+        }
+        
+        
     }
 }

@@ -108,10 +108,15 @@ namespace CP_Lab
 
         public void Sort()
         {
+            Sort((first, second) => first.CompareTo(second));
+        }
+
+        public void Sort(CompareDeligate<T> compare)
+        {
             ListItem<T> cursor = _first;
             while (cursor != null && cursor.Next != null)
             {
-                if (cursor.Vale.CompareTo(cursor.Next.Vale) > 0)
+                if (compare(cursor.Vale, cursor.Next.Vale) > 0)
                 {
                     T temp = cursor.Vale;
                     cursor.Vale = cursor.Next.Vale;
@@ -133,7 +138,7 @@ namespace CP_Lab
         {
             ListItem<T> cursor = _last;
             int validV = _version;
-            while (cursor!=null)
+            while (cursor != null)
             {
                 if (validV != _version)
                     throw new ChangeListInForeachException();
@@ -142,12 +147,37 @@ namespace CP_Lab
             }
         }
 
+        public T find(FindDeligate<T> checker)
+        {
+            ListItem<T> cursor = _first;
+            while (cursor != null)
+            {
+                if (checker(cursor.Vale))
+                    return cursor.Vale;
+                cursor = cursor.Next;
+            }
+            return default(T);
+        }
+
+        public ICollection<T> findAll(FindDeligate<T> checker)
+        {
+            LinkedList<T> result = new LinkedList<T>();
+            ListItem<T> cursor = _first;
+            while (cursor != null)
+            {
+                if (checker(cursor.Vale))
+                    result.Add(cursor.Vale);
+                cursor = cursor.Next;
+            }
+            return result;
+        }
+
 
         public IEnumerator<T> GetEnumerator()
         {
             ListItem<T> cursor = _first;
             int validV = _version;
-            while (cursor!=null)
+            while (cursor != null)
             {
                 if (validV != _version)
                     throw new ChangeListInForeachException();
@@ -162,7 +192,7 @@ namespace CP_Lab
         }
     }
 
-    public class ListItem<T> 
+    public class ListItem<T>
     {
         public ListItem(T product)
         {

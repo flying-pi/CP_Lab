@@ -5,7 +5,12 @@ using System.Runtime.Serialization;
 
 namespace CP_Lab
 {
-    public interface ICollection<T>:IEnumerable<T>,IEnumerable where T:IProduct
+    // creating custom delegate because i don`t know yout opinion about standard Action and Func delegate
+    public delegate bool FindDeligate<T>(T item) where T : IProduct;
+
+    public delegate int CompareDeligate<T>(T first, T second) where T : IProduct;
+
+    public interface ICollection<T> : IEnumerable<T>, IEnumerable where T : IProduct
     {
         int Count { get; }
         void Add(T product);
@@ -16,10 +21,15 @@ namespace CP_Lab
         void RemoveByName(string name);
         void Remove(T original);
         void Sort();
+        void Sort(CompareDeligate<T> compare);
         IEnumerable<T> GetReverseEnumerator();
+        T find(FindDeligate<T> checker);
+        ICollection<T> findAll(FindDeligate<T> checker);
+        
+
     }
-    
-    
+
+
     public class KeyNotFoundException : Exception
     {
         public KeyNotFoundException() : this("Can not found product with given name")
@@ -41,7 +51,7 @@ namespace CP_Lab
 
     public class ItemNotFoundException : Exception
     {
-        public ItemNotFoundException():this("can not found given item in collection")
+        public ItemNotFoundException() : this("can not found given item in collection")
         {
         }
 
@@ -60,7 +70,7 @@ namespace CP_Lab
 
     public class ChangeListInForeachException : Exception
     {
-        public ChangeListInForeachException():this("list was changed when foreach operator work")
+        public ChangeListInForeachException() : this("list was changed when foreach operator work")
         {
         }
 
