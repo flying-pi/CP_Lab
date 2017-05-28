@@ -1,4 +1,6 @@
-﻿namespace CP_Lab
+﻿using System;
+
+namespace CP_Lab
 {
     public class LiteraryWork : IProduct
     {
@@ -24,6 +26,11 @@
         {
             return
                 $"name = {Name}\tauthor = {Author}\t content = {(Content.Length > 25 ? Content.Substring(0, 25) + "...." : Content)}";
+        }
+
+        public int CompareTo(object obj)
+        {
+            return obj == null ? 1 : String.CompareOrdinal(Name, ((LiteraryWork) obj).Name);
         }
     }
 }

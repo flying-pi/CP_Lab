@@ -128,7 +128,7 @@ namespace CP_Lab
             string buf;
             for (int i = 0; i < _realSize-1; i++)
             {
-                if (String.Compare(_items[i].Name, _items[i + 1].Name, StringComparison.Ordinal)>0)
+                if (_items[i].CompareTo(_items[i + 1])>0)
                 {
                     buf = _items[i].Name;
                     _items[i].Name = _items[i + 1].Name;
