@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
@@ -10,11 +11,13 @@ namespace CP_Lab
     {
         private T[] _items;
         private int _realSize;
+        private int _version;
 
         public ArrayBaseList()
         {
             _items = new T[0];
             _realSize = 0;
+            _version = 0;
         }
 
         public int Count => _realSize;
@@ -24,6 +27,7 @@ namespace CP_Lab
             modifyArrayForNewElements();
             _items[_realSize] = product;
             _realSize++;
+            _version++;
         }
 
         public void AddAll(IList<T> items)
@@ -33,6 +37,7 @@ namespace CP_Lab
             for (int i = 0; i < items.Count; i++)
                 _items[offsetStart++] = items[i];
             _realSize += items.Count;
+            _version++;
         }
 
         private void modifyArrayForNewElements(int newItemsCount = 1)
@@ -49,7 +54,11 @@ namespace CP_Lab
         public T this[int i]
         {
             get { return _items[i]; }
-            set { _items[i] = value; }
+            set
+            {
+                _items[i] = value;
+                _version++;
+            }
         }
 
         public T this[string name]
@@ -73,6 +82,7 @@ namespace CP_Lab
                 return;
             for (int i = position; i < _realSize; i++)
                 _items[i] = _items[i + 1];
+            _version++;
         }
 
         public void RemoveByName(string name)
@@ -112,6 +122,36 @@ namespace CP_Lab
                         i -= 2;
                 }
             }
+            _version++;
+        }
+
+        public IEnumerable<T> GetReverseEnumerator()
+        {
+            int validV = _version;
+            for (int i = _realSize - 1; i >= 0; i--)
+            {
+                if (validV != _version)
+                    throw new ChangeListInForeachException();
+                yield return _items[i];
+
+            }
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            int validV = _version;
+            for (int i = 0; i < _realSize; i++)
+            {
+                if (validV != _version)
+                    throw new ChangeListInForeachException();
+                yield return _items[i];
+
+           }
+         }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

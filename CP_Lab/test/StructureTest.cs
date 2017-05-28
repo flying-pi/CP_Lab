@@ -134,5 +134,104 @@ namespace CP_Lab.test
                 Assert.AreEqual(names[names.Length-1-i],_collection[i].Name);
             }
         }
+
+        [Test]
+        public void IteratorTest()
+        { 
+            List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>());
+            _collection.AddAll(itemList);
+
+            int i = 0;
+            foreach (IProduct product in _collection)
+            {
+                Assert.AreSame(itemList[i++],product);
+            }
+        }
+        [Test]
+        public void ReversIteratorTest()
+        { 
+            List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>());
+            _collection.AddAll(itemList);
+
+            int i = itemList.Count-1;
+            foreach (IProduct product in _collection.GetReverseEnumerator())
+            {
+                Assert.AreSame(itemList[i--],product);
+            }
+        }
+
+        public static void EnumitatorTestHelper(ICollection<IProduct> collection,IEnumerable<IProduct> iterator)
+        {
+            Assert.Throws<ChangeListInForeachException>(() =>
+            {
+                foreach (var v in iterator)
+                {
+                    collection.Remove(collection[0]);
+                }
+            });
+            
+            Assert.Throws<ChangeListInForeachException>(() =>
+            {
+                foreach (var v in iterator)
+                {
+                    collection.RemoveByName(collection[0].Name);
+                }
+            });
+            
+            
+            Assert.Throws<ChangeListInForeachException>(() =>
+            {
+                foreach (var v in iterator)
+                {
+                    collection.RemoveAt(0);
+                }
+            });
+            
+            Assert.Throws<ChangeListInForeachException>(() =>
+            {
+                foreach (var v in iterator)
+                {
+                    collection.Sort();
+                }
+            });
+            
+            Assert.Throws<ChangeListInForeachException>(() =>
+            {
+                foreach (var v in iterator)
+                {
+                    collection[0] = new Drama();
+                }
+            });
+            
+            
+            Assert.Throws<ChangeListInForeachException>(() =>
+            {
+                foreach (var v in iterator)
+                {
+                    collection.Add(new Drama());
+                }
+            });
+            
+            Assert.Throws<ChangeListInForeachException>(() =>
+            {
+                foreach (var v in iterator)
+                {
+                    collection.AddAll( new List<IProduct>(GetItemList<Drama>()));
+                }
+            });
+        }
+
+        [Test]
+        public void IteratorChangeTest()
+        {
+            _collection.AddAll( new List<IProduct>(GetItemList<Drama>(10)));
+            EnumitatorTestHelper(_collection, _collection);
+        }
+        [Test]
+        public void IteratorReverceChangeTest()
+        {
+            _collection.AddAll( new List<IProduct>(GetItemList<Drama>(10)));
+            EnumitatorTestHelper(_collection, _collection.GetReverseEnumerator());
+        }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace CP_Lab
 {
-    public interface ICollection<T> where T:IProduct
+    public interface ICollection<T>:IEnumerable<T>,IEnumerable where T:IProduct
     {
         int Count { get; }
         void Add(T product);
@@ -15,6 +16,7 @@ namespace CP_Lab
         void RemoveByName(string name);
         void Remove(T original);
         void Sort();
+        IEnumerable<T> GetReverseEnumerator();
     }
     
     
@@ -52,6 +54,25 @@ namespace CP_Lab
         }
 
         public ItemNotFoundException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
+
+    public class ChangeListInForeachException : Exception
+    {
+        public ChangeListInForeachException():this("list was changed when foreach operator work")
+        {
+        }
+
+        public ChangeListInForeachException(string message) : base(message)
+        {
+        }
+
+        protected ChangeListInForeachException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+
+        public ChangeListInForeachException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }

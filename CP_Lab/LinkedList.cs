@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace CP_Lab
@@ -6,9 +7,8 @@ namespace CP_Lab
     public class LinkedList<T> : ICollection<T> where T : IProduct
     {
         private int size = -1;
-
         public int Count => size + 1;
-
+        private int _version = 0;
         private ListItem<T> _first;
         private ListItem<T> _last;
 
@@ -26,6 +26,7 @@ namespace CP_Lab
                 _first = _last;
             _last = newItem;
             size++;
+            _version++;
         }
 
         public void AddAll(IList<T> items)
@@ -37,7 +38,11 @@ namespace CP_Lab
         T ICollection<T>.this[int i]
         {
             get { return GetNodeByPosition(i).Vale; }
-            set { GetNodeByPosition(i).Vale = value; }
+            set
+            {
+                GetNodeByPosition(i).Vale = value;
+                _version++;
+            }
         }
 
         private ListItem<T> GetNodeByPosition(int pos)
@@ -73,6 +78,7 @@ namespace CP_Lab
             }
             item.Previuse.Next = item.Next;
             item.Next.Previuse = item.Previuse;
+            _version++;
         }
 
         public void RemoveAt(int position)
@@ -120,6 +126,39 @@ namespace CP_Lab
                     cursor = cursor.Next;
                 }
             }
+            _version++;
+        }
+
+        public IEnumerable<T> GetReverseEnumerator()
+        {
+            ListItem<T> cursor = _last;
+            int validV = _version;
+            while (cursor!=null)
+            {
+                if (validV != _version)
+                    throw new ChangeListInForeachException();
+                yield return cursor.Vale;
+                cursor = cursor.Previuse;
+            }
+        }
+
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            ListItem<T> cursor = _first;
+            int validV = _version;
+            while (cursor!=null)
+            {
+                if (validV != _version)
+                    throw new ChangeListInForeachException();
+                yield return cursor.Vale;
+                cursor = cursor.Next;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 
