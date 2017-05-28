@@ -2,7 +2,7 @@
 {
     public class LiteraryWork : IProduct
     {
-        public long SymbolCount { get; set; };
+        public long SymbolCount { get; set; }
         public string Author { get; set; } = "";
         public string Content { get; set; } = "";
         public string Name { get; set; } = "";
@@ -23,7 +23,7 @@
         public override string ToString()
         {
             return
-                $"author = {Author}\t content = {(Content.Length > 25 ? Content.Substring(0, 25) + "...." : Content)}";
+                $"name = {Name}\tauthor = {Author}\t content = {(Content.Length > 25 ? Content.Substring(0, 25) + "...." : Content)}";
         }
     }
 }
