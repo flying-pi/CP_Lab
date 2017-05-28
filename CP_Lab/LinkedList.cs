@@ -11,6 +11,7 @@ namespace CP_Lab
         private int _version = 0;
         private ListItem<T> _first;
         private ListItem<T> _last;
+        private int _totalCost = 0;
 
         public LinkedList()
         {
@@ -27,6 +28,8 @@ namespace CP_Lab
             _last = newItem;
             size++;
             _version++;
+            _totalCost += product.Price;
+            product.OnPriceChange += onPriceChange;
         }
 
         public void AddAll(IList<T> items)
@@ -55,6 +58,12 @@ namespace CP_Lab
             return cursor;
         }
 
+
+        private void onPriceChange(object sender, ProductEventArgs e)
+        {
+            _totalCost += e.NewPrice - e.OldPrice;
+        }
+
         T ICollection<T>.this[string name] => getNodeByName(name).Vale;
 
         private ListItem<T> getNodeByName(string name)
@@ -71,9 +80,18 @@ namespace CP_Lab
 
         protected void removeItem(ListItem<T> item)
         {
+            size--;
+            
+            item.Vale.OnPriceChange -= onPriceChange;
+            _totalCost -= item.Vale.Price;
             if (item.Previuse == null)
             {
                 _first = _first.Next;
+                return;
+            }
+            if (item.Next == null)
+            {
+                _last = _last.Previuse;
                 return;
             }
             item.Previuse.Next = item.Next;
@@ -170,6 +188,11 @@ namespace CP_Lab
                 cursor = cursor.Next;
             }
             return result;
+        }
+
+        public int GetTotoalProductCost()
+        {
+            return _totalCost;
         }
 
 

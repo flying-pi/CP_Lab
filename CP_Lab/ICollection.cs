@@ -25,8 +25,7 @@ namespace CP_Lab
         IEnumerable<T> GetReverseEnumerator();
         T find(FindDeligate<T> checker);
         ICollection<T> findAll(FindDeligate<T> checker);
-        
-
+        int GetTotoalProductCost();
     }
 
 

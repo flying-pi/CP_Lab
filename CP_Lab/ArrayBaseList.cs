@@ -12,6 +12,7 @@ namespace CP_Lab
         private T[] _items;
         private int _realSize;
         private int _version;
+        private int _totalPrice = 0;
 
         public ArrayBaseList()
         {
@@ -28,6 +29,8 @@ namespace CP_Lab
             _items[_realSize] = product;
             _realSize++;
             _version++;
+            _totalPrice += product.Price;
+            product.OnPriceChange += onPriceChange;
         }
 
         public void AddAll(IList<T> items)
@@ -35,9 +38,19 @@ namespace CP_Lab
             int offsetStart = _realSize;
             modifyArrayForNewElements(items.Count);
             for (int i = 0; i < items.Count; i++)
+            {
                 _items[offsetStart++] = items[i];
+                _totalPrice += items[i].Price;
+                items[i].OnPriceChange += onPriceChange;
+            }
             _realSize += items.Count;
             _version++;
+        }
+        
+
+        private void onPriceChange(object sender, ProductEventArgs e)
+        {
+            _totalPrice +=  e.NewPrice-e.OldPrice;
         }
 
         private void modifyArrayForNewElements(int newItemsCount = 1)
@@ -78,6 +91,8 @@ namespace CP_Lab
             if (position < 0 || position > _realSize)
                 throw new IndexOutOfRangeException();
             _realSize--;
+            _items[position].OnPriceChange -= onPriceChange;
+            _totalPrice -= _items[position].Price;
             if (position >= _realSize)
                 return;
             for (int i = position; i < _realSize; i++)
@@ -160,6 +175,11 @@ namespace CP_Lab
                     result.Add(_items[i]);
             }
             return result;
+        }
+
+        public int GetTotoalProductCost()
+        {
+            return this._totalPrice;
         }
 
         public IEnumerator<T> GetEnumerator()

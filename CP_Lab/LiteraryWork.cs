@@ -8,7 +8,20 @@ namespace CP_Lab
         public string Author { get; set; } = "";
         public string Content { get; set; } = "";
         public string Name { get; set; } = "";
-        public int Price { get; set; }
+        private int _price;
+
+        public int Price
+        {
+            get { return _price; }
+            set
+            {
+                ProductEventArgs arg = new ProductEventArgs(value,_price);
+                _price = value;
+                OnPriceChange?.Invoke(this, arg);
+            }
+        }
+
+        public event ChangedEventHandler OnPriceChange;
 
         public LiteraryWork()
         {

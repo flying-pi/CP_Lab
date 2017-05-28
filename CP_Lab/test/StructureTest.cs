@@ -282,7 +282,33 @@ namespace CP_Lab.test
             Assert.AreEqual(countTargetItem,_collection.findAll(item => item.Price==targetPrice).Count);
             Assert.AreEqual(0,_collection.findAll(item => item.Price==targetPrice*2).Count);
         }
-        
-        
+
+        [Test]
+        public void CheclTotalCost()
+        {
+            List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>());
+            int totalCost = 0;
+            itemList.ForEach(product => totalCost+=product.Price);
+            _collection.AddAll(itemList);
+            Assert.AreEqual(totalCost,_collection.GetTotoalProductCost());
+
+            int incricePrice = 10;
+            itemList.ForEach(product => product.Price+=incricePrice);
+            totalCost += incricePrice * itemList.Count;
+            Assert.AreEqual(totalCost,_collection.GetTotoalProductCost());
+
+            IProduct firstDeleteItem = itemList[0];
+            for (int i = 0; i < itemList.Count / 2; i++)
+            {
+                itemList.RemoveAt(i);
+                _collection.RemoveAt(i);
+            }
+            totalCost = 0;
+            itemList.ForEach(product => totalCost+=product.Price);
+            Assert.AreEqual(totalCost,_collection.GetTotoalProductCost());
+
+            firstDeleteItem.Price += 10;
+            Assert.AreEqual(totalCost,_collection.GetTotoalProductCost());
+        }
     }
 }
