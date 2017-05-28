@@ -44,9 +44,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collection.cs" />
+    <Compile Include="ArrayBaseList.cs" />
     <Compile Include="Drama.cs" />
     <Compile Include="Genre.cs" />
+    <Compile Include="ICollection.cs" />
+    <Compile Include="LinkedList.cs" />
     <Compile Include="LiteraryWork.cs" />
     <Compile Include="Novel.cs" />
     <Compile Include="IProduct.cs" />

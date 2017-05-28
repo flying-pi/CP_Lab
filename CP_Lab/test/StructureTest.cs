@@ -4,21 +4,23 @@ using NUnit.Framework;
 
 namespace CP_Lab.test
 {
-    [TestFixture]
-    public class StructureTest
+    
+    [TestFixture(typeof(ArrayBaseList<IProduct>))]
+    [TestFixture(typeof(LinkedList<IProduct>))]
+    public class StructureTest<T> where T : ICollection<IProduct>, new()
     {
-        private Collection testCollection;
+        private T _collection;
 
         [SetUp]
         public void BeforTest()
         {
-            testCollection = new Collection();
+            _collection = new T();
         }
 
         [TearDown]
         public void AfterTest()
         {
-            testCollection = null;
+            _collection = default(T);
         }
 
         private static List<T> GetItemList<T>(int size = 10, string namePrefix = "testProduct")
@@ -35,10 +37,10 @@ namespace CP_Lab.test
         {
             List<Drama> addedProduct = GetItemList<Drama>();
             foreach (Drama i in addedProduct)
-                testCollection.Add(i);
-            Assert.AreEqual(addedProduct.Count, testCollection.Count);
+                _collection.Add(i);
+            Assert.AreEqual(addedProduct.Count, _collection.Count);
             for (int i = 1; i < addedProduct.Count; i++)
-                Assert.AreSame(testCollection[i], addedProduct[i]);
+                Assert.AreSame(_collection[i], addedProduct[i]);
         }
 
 
@@ -46,10 +48,10 @@ namespace CP_Lab.test
         public void AllAddTest()
         {
             List<IProduct> addedProduct = new List<IProduct>(GetItemList<Drama>());
-            testCollection.AddAll(addedProduct);
-            Assert.AreEqual(addedProduct.Count, testCollection.Count);
+            _collection.AddAll(addedProduct);
+            Assert.AreEqual(addedProduct.Count, _collection.Count);
             for (int i = 1; i < addedProduct.Count; i++)
-                Assert.AreSame(testCollection[i], addedProduct[i]);
+                Assert.AreSame(_collection[i], addedProduct[i]);
         }
 
         [Test]
@@ -57,24 +59,24 @@ namespace CP_Lab.test
         {
             string namePrefix = "t";
             List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>(10, namePrefix));
-            testCollection.AddAll(itemList);
+            _collection.AddAll(itemList);
             for (int i = 0; i < itemList.Count; i++)
-                Assert.AreSame(testCollection[namePrefix + i], itemList[i]);
+                Assert.AreSame(_collection[namePrefix + i], itemList[i]);
         }
 
-        private static void deleteTestHelper(List<IProduct> itemList, Collection testCollection,
-            Action<int, List<IProduct>, Collection> deleteAction)
+        private static void deleteTestHelper(List<IProduct> itemList, T testedCollection,
+            Action<int, List<IProduct>, T> deleteAction)
         {
-            testCollection.AddAll(itemList);
+            testedCollection.AddAll(itemList);
             Random random = new Random();
             int r;
             for (int i = 0; i < itemList.Count / 5; i++)
             {
                 r = random.Next(0, itemList.Count - 1);
-                deleteAction(r, itemList, testCollection);
+                deleteAction(r, itemList, testedCollection);
             }
             for (int i = 0; i < itemList.Count; i++)
-                Assert.AreSame(testCollection[i], itemList[i]);
+                Assert.AreSame(testedCollection[i], itemList[i]);
         }
 
         [Test]
@@ -82,98 +84,39 @@ namespace CP_Lab.test
         {
             
             List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>(100));
-            deleteTestHelper(itemList, testCollection, (position, originalList, testCollect) =>
+            deleteTestHelper(itemList, _collection, (position, originalList, testCollect) =>
             {
                 originalList.RemoveAt(position);
                 testCollect.RemoveAt(position);
             });
             
-            Assert.Throws<IndexOutOfRangeException>(() => testCollection.RemoveAt(100));
+            Assert.Throws<IndexOutOfRangeException>(() => _collection.RemoveAt(100));
         }
 
         [Test]
         public void DeleteByNameTest()
         {
             List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>(100,namePrefix:"del"));
-            deleteTestHelper(itemList, testCollection, (position, originalList, testCollect) =>
+            deleteTestHelper(itemList, _collection, (position, originalList, testCollect) =>
             {
                 testCollect.RemoveByName(originalList[position].Name);
                 originalList.RemoveAt(position);
             });
             
-            Assert.Throws<KeyNotFoundException>(() => testCollection.RemoveByName("unknowName"));
+            Assert.Throws<KeyNotFoundException>(() => _collection.RemoveByName("unknowName"));
         }
 
         [Test]
         public void DeleteByItemTest()
         {
             List<IProduct> itemList = new List<IProduct>(GetItemList<Drama>(100,namePrefix:"del"));
-            deleteTestHelper(itemList, testCollection, (position, originalList, testCollect) =>
+            deleteTestHelper(itemList, _collection, (position, originalList, testCollect) =>
             {
                 testCollect.Remove(originalList[position]);
                 originalList.RemoveAt(position);
             });
             
-            Assert.Throws<KeyNotFoundException>(() => testCollection.RemoveByName("unknowName"));
-        }
-
-        [Test]
-        [Ignore("uses once for perfomance check")]
-        public void CompareDeletePerfomance()
-        {
-            int firstResult = DeleteByNameBacnhmart(new Collection(), (collection, nameForDelete) =>
-            {
-                collection.RemoveFirst(nameForDelete, (name, product) => product.Name.Equals(name));
-            });
-            
-            
-            int secondResult = DeleteByNameBacnhmart(new Collection(), (collection, nameForDelete) =>
-            {
-                collection.RemoveFirst(nameForDelete, Collection.nameChecker);
-            });
-            
-            int thredResult = DeleteByNameBacnhmart(new Collection(), (collection, nameForDelete) =>
-            {
-                collection.RemoveByName(nameForDelete);
-            });
-            
-            Console.Write("using lambda :: ");
-            Console.Write(firstResult);
-            Console.Write("\t");
-            Console.Write("using method reference :: ");
-            Console.Write(secondResult);
-            Console.Write("\t");
-            Console.Write("withot lambda:: ");
-            Console.Write(thredResult);
-            Assert.True(thredResult<secondResult && thredResult<firstResult);
-        }
-
-        public static int DeleteByNameBacnhmart(Collection testCollection,Action<Collection,string> deleteAction)
-        {
-            string namePrefix = "";
-            int collectionSize = 20000;
-            int section = 50;
-            int size = collectionSize/2/section;
-            testCollection.AddAll(new List<IProduct>(GetItemList<Drama>(collectionSize, namePrefix)));
-
-            int allTime = 0;
-            int dellName = collectionSize / 2 - size;
-            for (int i = 0; i < section; i++)
-            {
-                int start = (testCollection.Count - size) / 2;
-                int end = start + size;
-                
-                System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
-                timer.Start();
-                for (int j = start; j < end; j++)
-                {
-                    deleteAction(testCollection, dellName.ToString());
-                    dellName++;
-                }
-                timer.Stop();
-                allTime+= timer.Elapsed.Milliseconds;
-            }
-            return allTime / section;
+            Assert.Throws<KeyNotFoundException>(() => _collection.RemoveByName("unknowName"));
         }
 
         [Test]
@@ -182,12 +125,13 @@ namespace CP_Lab.test
             string[] names = {"mock","cort","bor","artica"};
             foreach (string name in names)
             {
-                testCollection.Add(new Drama(name:name));
+                _collection.Add(new Drama(name:name));
             }
-            testCollection.Sort();
+            _collection.Sort();
+
             for (int i = 0; i < names.Length; i++)
             {
-                Assert.AreEqual(testCollection[i].Name,names[names.Length-1-i]);
+                Assert.AreEqual(names[names.Length-1-i],_collection[i].Name);
             }
         }
     }
